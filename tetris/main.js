@@ -32,6 +32,12 @@ const COLORS = [
     '#f00000', // 7 red
 ];
 
+// --- Gravity timing ---
+let lastTime = 0;
+let dropCounter = 0;
+let dropInterval = 800; // ms per row at start (we can speed up later)
+
+
 // Draw one cell
 function drawCell(x, y, color) {
     const px = x * SIZE;
@@ -187,11 +193,41 @@ function render() {
 
 }
 
+function drop() {
+    if (!tryMove(0, 1)) {
+        // Can't go down: lock and spawn next
+        mergePiece();
+        spawn();
+
+        // If new piece is invalid immediately, it's game over (temp handling)
+        if (!isValidPosition(piece.matrix, piece.x, piece.y)) {
+            // simple reset for now
+            for (let y = 0; y < ROWS; y++) board[y].fill(0);
+            spawn();
+        }
+        render();
+    }
+    dropCounter = 0;
+}
+
+
+function update(time = 0) {
+    const dt = time - lastTime;
+    lastTime = time;
+
+    dropCounter += dt;
+    if (dropCounter >= dropInterval) {
+        drop();
+    }
+
+    render();
+    requestAnimationFrame(update);
+}
+
+
 
 spawn();
-if (!isValidPosition(piece.matrix, piece.x, piece.y)) {
-    alert('Game Over on spawn'); // just for now; we’ll handle better later
-}
-render();
+requestAnimationFrame(update);
+
 
 
