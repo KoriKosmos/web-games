@@ -1,0 +1,11 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+    display: flex; align-items: center; justify-content: center;
+    background: #111; color: #eee; font-family: system-ui, sans-serif;
+}
+#board {
+    background: #000;
+    border: 2px solid #444;
+    image-rendering: pixelated;
+}
