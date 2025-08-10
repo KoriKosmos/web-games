@@ -285,12 +285,22 @@ function update(time = 0) {
         drop();
     }
 
-    // Horizontal autorepeat
-    if (keys.left) tryMove(-1, 0);
-    if (keys.right) tryMove(1, 0);
 
-// Down key as soft drop
-    if (keys.down) drop();
+    moveDelay += dt;
+    if (moveDelay >= moveInterval) {
+        if (keys.left) {
+            tryMove(-1, 0);
+            moveDelay = 0;
+        } else if (keys.right) {
+            tryMove(1, 0);
+            moveDelay = 0;
+        }
+    }
+
+    // Soft drop
+    if (keys.down) {
+        drop();
+    }
 
 
     render();
@@ -298,9 +308,18 @@ function update(time = 0) {
 }
 
 const keys = { left: false, right: false, down: false };
+let moveDelay = 0;      // time since last horizontal move
+const moveInterval = 120; // ms between repeated moves
+
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') keys.left = true;
-    else if (e.key === 'ArrowRight') keys.right = true;
+    if (e.key === 'ArrowLeft') {
+        if (!keys.left) moveDelay = moveInterval; // allow immediate move
+        keys.left = true;
+    }
+    else if (e.key === 'ArrowRight') {
+        if (!keys.right) moveDelay = moveInterval;
+        keys.right = true;
+    }
     else if (e.key === 'ArrowDown') keys.down = true;
     else if (e.key === 'x' || e.key === 'X') tryRotate(1);
     else if (e.key === 'z' || e.key === 'Z') tryRotate(-1);
