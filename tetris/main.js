@@ -285,31 +285,35 @@ function update(time = 0) {
         drop();
     }
 
+    // Horizontal autorepeat
+    if (keys.left) tryMove(-1, 0);
+    if (keys.right) tryMove(1, 0);
+
+// Down key as soft drop
+    if (keys.down) drop();
+
+
     render();
     requestAnimationFrame(update);
 }
 
+const keys = { left: false, right: false, down: false };
 window.addEventListener('keydown', (e) => {
-    const handled = ['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key);
-    if (handled) e.preventDefault();
+    if (e.key === 'ArrowLeft') keys.left = true;
+    else if (e.key === 'ArrowRight') keys.right = true;
+    else if (e.key === 'ArrowDown') keys.down = true;
+    else if (e.key === 'x' || e.key === 'X') tryRotate(1);
+    else if (e.key === 'z' || e.key === 'Z') tryRotate(-1);
 
-    if (e.key === 'x' || e.key === 'X') {
-        tryRotate(1);    // clockwise
-    } else if (e.key === 'z' || e.key === 'Z') {
-        tryRotate(-1);   // counter-clockwise
-    }
-
-    if (e.key === 'ArrowLeft') {
-        tryMove(-1, 0);
-    } else if (e.key === 'ArrowRight') {
-        tryMove(1, 0);
-    } else if (e.key === 'ArrowDown') {
-        // soft drop: reuse same logic as gravity
-        drop();
-    }
-
-    render();
+    e.preventDefault();
 });
+
+window.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft') keys.left = false;
+    else if (e.key === 'ArrowRight') keys.right = false;
+    else if (e.key === 'ArrowDown') keys.down = false;
+});
+
 
 
 spawn();
