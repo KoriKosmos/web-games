@@ -245,7 +245,7 @@ window.addEventListener('keydown', (e) => {
     const handled = ['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key);
     if (handled) e.preventDefault();
 
-    if (e.key === 'c' || e.key === 'C') {
+    if (e.key === 'x' || e.key === 'X') {
         tryRotate(1);    // clockwise
     } else if (e.key === 'z' || e.key === 'Z') {
         tryRotate(-1);   // counter-clockwise
