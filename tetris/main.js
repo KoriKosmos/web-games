@@ -154,6 +154,23 @@ function tryMove(dx, dy) {
     return false;
 }
 
+function tryRotate(dir = 1) {
+    const rotated = rotate(piece.matrix, dir);
+
+    // test center + a few side offsets
+    const kicks = [0, -1, 1, -2, 2];
+    for (const k of kicks) {
+        const nx = piece.x + k;
+        const ny = piece.y; // no vertical kick in this simple version
+        if (isValidPosition(rotated, nx, ny)) {
+            piece.matrix = rotated;
+            piece.x = nx;
+            piece.y = ny;
+            return true;
+        }
+    }
+    return false;
+}
 
 
 // Full render: background, placed blocks, grid
@@ -227,6 +244,10 @@ function update(time = 0) {
 window.addEventListener('keydown', (e) => {
     const handled = ['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key);
     if (handled) e.preventDefault();
+
+    if (e.key === 'ArrowUp') {
+        tryRotate(1);    // clockwise
+    }
 
     if (e.key === 'ArrowLeft') {
         tryMove(-1, 0);
