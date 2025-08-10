@@ -280,58 +280,92 @@ function update(time = 0) {
     const dt = time - lastTime;
     lastTime = time;
 
+    // Gravity
     dropCounter += dt;
     if (dropCounter >= dropInterval) {
         drop();
     }
 
-
-    moveDelay += dt;
-    if (moveDelay >= moveInterval) {
-        if (keys.left) {
-            tryMove(-1, 0);
-            moveDelay = 0;
-        } else if (keys.right) {
-            tryMove(1, 0);
-            moveDelay = 0;
+    // Horizontal movement with DAS/ARR
+    if (horiz !== 0) {
+        if (dasTimer < DAS) {
+            dasTimer += dt;               // wait initial delay
+        } else {
+            arrTimer += dt;               // then repeat at ARR
+            if (arrTimer >= ARR) {
+                tryMove(horiz, 0);
+                arrTimer = 0;
+            }
         }
     }
 
-    // Soft drop
+    // Soft drop (throttled)
     if (keys.down) {
-        drop();
+        softTimer += dt;
+        if (softTimer >= SOFT) {
+            drop();
+            softTimer = 0;
+        }
+    } else {
+        softTimer = 0;
     }
-
 
     render();
     requestAnimationFrame(update);
 }
 
+
 const keys = { left: false, right: false, down: false };
-let moveDelay = 0;      // time since last horizontal move
-const moveInterval = 120; // ms between repeated moves
+let horiz = 0;               // -1 left, 0 none, 1 right
+let dasTimer = 0;
+let arrTimer = 0;
+const DAS = 170;             // ms before auto-repeat starts
+const ARR = 50;              // ms between repeats after DAS
+let softTimer = 0;
+const SOFT = 40;             // ms between soft drops
+
+function setHoriz(dir) {
+    if (horiz !== dir) {
+        horiz = dir;
+        dasTimer = 0;
+        arrTimer = 0;
+        if (dir !== 0) {
+            // immediate move on press or when switching directions
+            tryMove(dir, 0);
+        }
+    }
+}
+
 
 window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') {
-        if (!keys.left) moveDelay = moveInterval; // allow immediate move
-        keys.left = true;
+        if (!keys.left) { keys.left = true; setHoriz(-1); }
+        e.preventDefault();
+    } else if (e.key === 'ArrowRight') {
+        if (!keys.right) { keys.right = true; setHoriz(1); }
+        e.preventDefault();
+    } else if (e.key === 'ArrowDown') {
+        keys.down = true; e.preventDefault();
+    } else if (e.key === 'x' || e.key === 'X') {
+        tryRotate(1); e.preventDefault();
+    } else if (e.key === 'z' || e.key === 'Z') {
+        tryRotate(-1); e.preventDefault();
     }
-    else if (e.key === 'ArrowRight') {
-        if (!keys.right) moveDelay = moveInterval;
-        keys.right = true;
-    }
-    else if (e.key === 'ArrowDown') keys.down = true;
-    else if (e.key === 'x' || e.key === 'X') tryRotate(1);
-    else if (e.key === 'z' || e.key === 'Z') tryRotate(-1);
-
-    e.preventDefault();
 });
 
 window.addEventListener('keyup', (e) => {
-    if (e.key === 'ArrowLeft') keys.left = false;
-    else if (e.key === 'ArrowRight') keys.right = false;
-    else if (e.key === 'ArrowDown') keys.down = false;
+    if (e.key === 'ArrowLeft') {
+        keys.left = false;                     // unset first
+        setHoriz(keys.right ? 1 : 0);          // then decide continuation
+    } else if (e.key === 'ArrowRight') {
+        keys.right = false;                    // unset first
+        setHoriz(keys.left ? -1 : 0);          // then decide continuation
+    } else if (e.key === 'ArrowDown') {
+        keys.down = false;
+        softTimer = 0;
+    }
 });
+
 
 
 
