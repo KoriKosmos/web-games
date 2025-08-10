@@ -46,6 +46,61 @@ function drawCell(x, y, color) {
     ctx.strokeRect(px + 0.5, py + 0.5, SIZE - 1, SIZE - 1);
 }
 
+// --- Tetromino definitions (cell values match color indices) ---
+const SHAPES = {
+    I: [[1,1,1,1]],
+    J: [[2,0,0],[2,2,2]],
+    L: [[0,0,3],[3,3,3]],
+    O: [[4,4],[4,4]],
+    S: [[0,5,5],[5,5,0]],
+    T: [[0,6,0],[6,6,6]],
+    Z: [[7,7,0],[0,7,7]],
+};
+
+// Rotate a matrix CW (dir=1) or CCW (dir=-1)
+function rotate(mat, dir = 1) {
+    const h = mat.length, w = mat[0].length;
+    const res = Array.from({ length: w }, () => Array(h).fill(0));
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            if (dir === 1) res[x][h - 1 - y] = mat[y][x];
+            else res[w - 1 - x][y] = mat[y][x];
+        }
+    }
+    return res;
+}
+
+// Active piece state
+let piece = null;
+
+// Draw any matrix onto the canvas at (offX, offY)
+function drawMatrix(mat, offX, offY) {
+    for (let y = 0; y < mat.length; y++) {
+        for (let x = 0; x < mat[y].length; x++) {
+            const v = mat[y][x];
+            if (!v) continue;
+            const gx = offX + x;
+            const gy = offY + y;
+            if (gy >= 0) { // allow spawning slightly above visible area
+                drawCell(gx, gy, COLORS[v]);
+            }
+        }
+    }
+}
+
+// Spawn a random tetromino centered at the top
+function spawn() {
+    const types = Object.keys(SHAPES);
+    const t = types[Math.floor(Math.random() * types.length)];
+    const mat = SHAPES[t].map(row => row.slice()); // shallow clone
+    piece = {
+        matrix: mat,
+        x: Math.floor((COLS - mat[0].length) / 2),
+        y: -1, // start just above the board so tall pieces slide in
+    };
+}
+
+
 // Full render: background, placed blocks, grid
 function render() {
     // background
@@ -75,12 +130,15 @@ function render() {
         ctx.lineTo(COLS * SIZE, y * SIZE);
         ctx.stroke();
     }
+
+    // draw active piece on top
+    if (piece) {
+        drawMatrix(piece.matrix, piece.x, piece.y);
+    }
+
 }
 
 
-// TEMP: paint a few cells so we can see something
-board[19].fill(4);   // yellow bottom row
-board[18][4] = 2;    // blue block
-board[17][5] = 6;    // purple block
+spawn();
 render();
 
