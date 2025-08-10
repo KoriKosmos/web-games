@@ -275,6 +275,38 @@ function drop() {
     dropCounter = 0;
 }
 
+function hardDrop() {
+    // fall until the next step would collide
+    let distance = 0;
+    while (isValidPosition(piece.matrix, piece.x, piece.y + 1)) {
+        piece.y++;
+        distance++;
+    }
+
+    // lock, score, clear, spawn next
+    mergePiece();
+    const cleared = clearLines();
+    if (cleared) addScore(cleared);
+
+    // hard-drop bonus: +2 per cell, scaled by (level+1)
+    if (distance > 0) {
+        score += distance * 2 * (level + 1);
+        updateHUD();
+    }
+
+    spawn();
+    if (!isValidPosition(piece.matrix, piece.x, piece.y)) {
+        // simple reset for now (same as drop())
+        for (let y = 0; y < ROWS; y++) board[y].fill(0);
+        score = 0; lines = 0; level = 0;
+        updateHUD();
+        spawn();
+    }
+
+    dropCounter = 0;
+    render();
+}
+
 
 function update(time = 0) {
     const dt = time - lastTime;
@@ -351,6 +383,11 @@ window.addEventListener('keydown', (e) => {
     } else if (e.key === 'z' || e.key === 'Z') {
         tryRotate(-1); e.preventDefault();
     }
+    else if (e.code === 'Space') {
+        if (!e.repeat) hardDrop(); // ignore key-repeat so it only fires once
+        e.preventDefault();
+    }
+
 });
 
 window.addEventListener('keyup', (e) => {
