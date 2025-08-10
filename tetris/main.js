@@ -100,6 +100,55 @@ function spawn() {
     };
 }
 
+// Check if matrix at (offX, offY) is a valid position (no collisions)
+function isValidPosition(mat, offX, offY) {
+    for (let y = 0; y < mat.length; y++) {
+        for (let x = 0; x < mat[y].length; x++) {
+            const v = mat[y][x];
+            if (!v) continue;
+
+            const gx = offX + x;
+            const gy = offY + y;
+
+            // outside left/right/bottom
+            if (gx < 0 || gx >= COLS || gy >= ROWS) return false;
+
+            // above top is allowed (spawn region)
+            if (gy < 0) continue;
+
+            // hit an occupied cell
+            if (board[gy][gx]) return false;
+        }
+    }
+    return true;
+}
+
+// Merge the active piece into the board (lock it)
+function mergePiece() {
+    const { matrix, x: offX, y: offY } = piece;
+    for (let y = 0; y < matrix.length; y++) {
+        for (let x = 0; x < matrix[y].length; x++) {
+            const v = matrix[y][x];
+            if (!v) continue;
+            const gx = offX + x;
+            const gy = offY + y;
+            if (gy >= 0) board[gy][gx] = v;
+        }
+    }
+}
+
+function tryMove(dx, dy) {
+    const nx = piece.x + dx;
+    const ny = piece.y + dy;
+    if (isValidPosition(piece.matrix, nx, ny)) {
+        piece.x = nx;
+        piece.y = ny;
+        return true;
+    }
+    return false;
+}
+
+
 
 // Full render: background, placed blocks, grid
 function render() {
@@ -140,5 +189,9 @@ function render() {
 
 
 spawn();
+if (!isValidPosition(piece.matrix, piece.x, piece.y)) {
+    alert('Game Over on spawn'); // just for now; we’ll handle better later
+}
 render();
+
 
