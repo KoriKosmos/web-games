@@ -1,11 +1,31 @@
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
-body {
-    display: flex; align-items: center; justify-content: center;
-    background: #111; color: #eee; font-family: system-ui, sans-serif;
+* {
+    box-sizing: border-box;
 }
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    color: #eee;
+    font-family: system-ui, sans-serif;
+}
+
 #board {
     background: #000;
     border: 2px solid #444;
     image-rendering: pixelated;
 }
+
+#hud {
+    margin-left: 16px;
+    color: #ddd;
+    font-weight: 600;
+    line-height: 1.6;
+}
+body { gap: 16px; } /* add to existing body style */

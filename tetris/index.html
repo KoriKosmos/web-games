@@ -1,14 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta charset="utf-8"/>
+    <meta content="width=device-width,initial-scale=1" name="viewport"/>
     <title>Tetris</title>
-    <link rel="stylesheet" href="style.css" />
+    <link href="style.css" rel="stylesheet"/>
 </head>
+
 <body>
 <!-- 10 columns × 20 rows, 30px cell size → 300 × 600 -->
-<canvas id="board" width="300" height="600"></canvas>
+<canvas height="600" id="board" width="300"></canvas>
+<div id="hud">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lines: <span id="lines">0</span></div>
+    <div>Level: <span id="level">0</span></div>
+</div>
 <script src="main.js"></script>
 </body>
+
 </html>

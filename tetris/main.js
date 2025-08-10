@@ -17,8 +17,24 @@ const ctx = canvas.getContext('2d');
     }
 })();
 
+// --- Scoring ---
+let score = 0;
+let lines = 0;
+let level = 0;
+
+const $score = document.getElementById('score');
+const $lines = document.getElementById('lines');
+const $level = document.getElementById('level');
+
+function updateHUD() {
+    $score.textContent = score;
+    $lines.textContent = lines;
+    $level.textContent = level;
+}
+
+
 // --- Playfield state (0 = empty; >0 = color index) ---
-const board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+const board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
 
 // Simple palette: indices 1..7 map to colors
 const COLORS = [
@@ -54,19 +70,19 @@ function drawCell(x, y, color) {
 
 // --- Tetromino definitions (cell values match color indices) ---
 const SHAPES = {
-    I: [[1,1,1,1]],
-    J: [[2,0,0],[2,2,2]],
-    L: [[0,0,3],[3,3,3]],
-    O: [[4,4],[4,4]],
-    S: [[0,5,5],[5,5,0]],
-    T: [[0,6,0],[6,6,6]],
-    Z: [[7,7,0],[0,7,7]],
+    I: [[1, 1, 1, 1]],
+    J: [[2, 0, 0], [2, 2, 2]],
+    L: [[0, 0, 3], [3, 3, 3]],
+    O: [[4, 4], [4, 4]],
+    S: [[0, 5, 5], [5, 5, 0]],
+    T: [[0, 6, 0], [6, 6, 6]],
+    Z: [[7, 7, 0], [0, 7, 7]],
 };
 
 // Rotate a matrix CW (dir=1) or CCW (dir=-1)
 function rotate(mat, dir = 1) {
     const h = mat.length, w = mat[0].length;
-    const res = Array.from({ length: w }, () => Array(h).fill(0));
+    const res = Array.from({length: w}, () => Array(h).fill(0));
     for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
             if (dir === 1) res[x][h - 1 - y] = mat[y][x];
@@ -131,7 +147,7 @@ function isValidPosition(mat, offX, offY) {
 
 // Merge the active piece into the board (lock it)
 function mergePiece() {
-    const { matrix, x: offX, y: offY } = piece;
+    const {matrix, x: offX, y: offY} = piece;
     for (let y = 0; y < matrix.length; y++) {
         for (let x = 0; x < matrix[y].length; x++) {
             const v = matrix[y][x];
@@ -142,6 +158,20 @@ function mergePiece() {
         }
     }
 }
+
+function clearLines() {
+    let cleared = 0;
+    for (let y = ROWS - 1; y >= 0; y--) {
+        if (board[y].every(v => v !== 0)) {
+            board.splice(y, 1);                 // remove the full row
+            board.unshift(Array(COLS).fill(0)); // add empty row at top
+            cleared++;
+            y++; // re-check same y index (since rows shifted down)
+        }
+    }
+    return cleared; // 0..4
+}
+
 
 function tryMove(dx, dy) {
     const nx = piece.x + dx;
