@@ -224,6 +224,21 @@ function update(time = 0) {
     requestAnimationFrame(update);
 }
 
+window.addEventListener('keydown', (e) => {
+    const handled = ['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key);
+    if (handled) e.preventDefault();
+
+    if (e.key === 'ArrowLeft') {
+        tryMove(-1, 0);
+    } else if (e.key === 'ArrowRight') {
+        tryMove(1, 0);
+    } else if (e.key === 'ArrowDown') {
+        // soft drop: reuse same logic as gravity
+        drop();
+    }
+
+    render();
+});
 
 
 spawn();
