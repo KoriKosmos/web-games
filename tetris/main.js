@@ -32,6 +32,22 @@ function updateHUD() {
     $level.textContent = level;
 }
 
+function addScore(cleared) {
+    // classic-ish: 1=100, 2=300, 3=500, 4=800; scaled by (level+1)
+    const table = [0, 100, 300, 500, 800];
+    score += table[cleared] * (level + 1);
+    lines += cleared;
+
+    // level up every 10 lines
+    const target = (level + 1) * 10;
+    if (lines >= target) {
+        level++;
+        // speed up a bit each level, min 100ms
+        dropInterval = Math.max(100, dropInterval - 80);
+    }
+    updateHUD();
+}
+
 
 // --- Playfield state (0 = empty; >0 = color index) ---
 const board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
@@ -244,6 +260,8 @@ function drop() {
     if (!tryMove(0, 1)) {
         // Can't go down: lock and spawn next
         mergePiece();
+        const cleared = clearLines();
+        if (cleared) addScore(cleared);
         spawn();
 
         // If new piece is invalid immediately, it's game over (temp handling)
@@ -295,6 +313,7 @@ window.addEventListener('keydown', (e) => {
 
 
 spawn();
+updateHUD();
 requestAnimationFrame(update);
 
 
