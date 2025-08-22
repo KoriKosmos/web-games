@@ -8,7 +8,20 @@
 </head>
 <body>
     <h1>Rock Paper Scissors</h1>
-    <!-- Game UI will go here -->
+    <div id="score">
+        <p>Player Wins: <span id="playerWins">0</span></p>
+        <p>CPU Wins: <span id="cpuWins">0</span></p>
+        <p>Ties: <span id="ties">0</span></p>
+    </div>
+    <div id="game">
+        <p>Choose your throw:</p>
+        <button class="throw" data-throw="rock">Rock</button>
+        <button class="throw" data-throw="paper">Paper</button>
+        <button class="throw" data-throw="scissors">Scissors</button>
+    </div>
+    <div id="result"></div>
+    <div id="computerChoice"></div>
+    <button id="resetScores">Reset Scores</button>
     <script src="main.js"></script>
 </body>
 </html>
